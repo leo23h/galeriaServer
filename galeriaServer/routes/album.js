@@ -17,7 +17,7 @@ api.get('/album/:1', function(req, res) {
 
 // Creamos una ruta para los métodos que tenemos en nuestros controladores
 api.post('/album', function(req, res) {
-	//insert to album
+    //insert to album
     var alb = new album({
         name: req.body.name,
         images: []
@@ -39,11 +39,11 @@ api.post('/album', function(req, res) {
         })
 });
 
-// Creamos una ruta para los métodos que tenemos en nuestros controladores
+// route for get all albums
 api.get('/album', function(req, res) {
-	
+
     album.find().then((data) => {
-            res.json({data});
+            res.json({ data });
         })
         .catch((err) => {
             console.log(err);
@@ -53,6 +53,22 @@ api.get('/album', function(req, res) {
             });
         })
 });
+
+// Creamos una ruta para los métodos que tenemos en nuestros controladores
+api.get('/album/:id', function(req, res) {
+    album.findById(req.params._id).then((data) => {
+            console.log("obtener album", data);
+            res.json({ data });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.json({
+                status: "error",
+                message: 'error to find album',
+            });
+        })
+});
+
 
 // Exportamos la configuración
 module.exports = api;
