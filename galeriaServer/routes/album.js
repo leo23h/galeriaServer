@@ -197,5 +197,21 @@ api.delete('/album/image/:idAlbum/:idImage', function(req, res) {
     })
 });
 
+// route for find the image with album ID
+api.get('/album/image/name/:name', function(req, res) {
+    //asign to variable the parameter
+    var name = req.params.name;
+    album.find({ "images.name": /name/i }).then((data) => {
+            res.json({ data });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.json({
+                status: "error",
+                message: 'error to find image',
+            });
+        })
+});
+
 // configuration export
 module.exports = api;
