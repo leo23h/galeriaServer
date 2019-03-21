@@ -1,4 +1,3 @@
-
 'use strict'
 var express = require('express');
 
@@ -6,14 +5,14 @@ var bodyParser = require('body-parser');
 
 var app = express();
 
-var album_routes = require('./routes/album.js'); 
+var album_routes = require('./routes/album.js');
 
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({ limit: '60mb', extended: true, parameterLimit: 500000 }));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '60mb' }));
 
 // Add headers
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
 
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -31,6 +30,7 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
+
 
 app.use('/api', album_routes);
 

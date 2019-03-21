@@ -3,16 +3,12 @@
 
 var express = require('express');
 var mongoose = require('mongoose');
+var ObjectId = require('mongodb').ObjectID;
 var album = require('../models/album');
 var image = require('../models/images');
 // call the router
 var api = express.Router();
-var id = mongoose.Types.ObjectId();
 
-
-api.get('/', function(req, res) {
-
-});
 
 // creation route for save album
 api.post('/album', function(req, res) {
@@ -73,33 +69,30 @@ api.get('/album/:id', function(req, res) {
 // creation route for save image by album
 api.post('/album/image/', function(req, res) {
     console.log("informacion req", req.body.image)
+        //initialize array temp
     var arrayTemp = [];
     //initialize date
     var date = new Date();
     //initialize album object
     var img = new image();
-
     // creation variables
+    img.name = req.body.name;
     img.image = req.body.image;
     img.creationDate = date;
     //query
     //search album
     album.findById(req.body.idAlbum).then((data) => {
-
-        img.image = req.body.image;
         //add creationDate
         img.creationDate = date;
-
+        //assing array images to array temp
         arrayTemp = data.images;
         //add new image
         arrayTemp.push(img);
-
         //query for search an update images
-        album.findByIdAndUpdate(req.body.idAlbum, { id: id, images: arrayTemp }).then((data) => {
+        album.findByIdAndUpdate(req.body.idAlbum, { id: ObjectId(), images: arrayTemp }).then((data) => {
                 res.json({
                     status: "success",
-                    message: 'New image added!',
-                    data: data
+                    message: 'New image added!'
                 });
             })
             .catch((err) => {
@@ -120,7 +113,7 @@ api.post('/album/image/', function(req, res) {
 
 // route for find the image with album ID
 api.get('/album/image/:id', function(req, res) {
-    album.find({ "images._id": mongoose.Types.ObjectId(req.params.id) }, { "images.$": 1 }).then((data) => {
+    album.find({ "images._id": ObjectId(req.params.id) }, { "images.$": 1 }).then((data) => {
             res.json({ data });
         })
         .catch((err) => {
