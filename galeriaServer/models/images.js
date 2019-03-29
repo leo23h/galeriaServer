@@ -4,9 +4,8 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 
-
 var imageSchema = Schema({
-    id: Number,
+    _id: Number,
     name: String,
     image: String,
     creationDate: Date

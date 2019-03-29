@@ -3,12 +3,12 @@
 
 var express = require('express');
 var mongoose = require('mongoose');
-var ObjectId = require('mongodb').ObjectID;
 var album = require('../models/album');
 var image = require('../models/images');
+var imageCounter = require('../models/counters');
+
 // call the router
 var api = express.Router();
-
 
 // creation route for save album
 api.post('/album', function(req, res) {
@@ -39,7 +39,6 @@ api.post('/album', function(req, res) {
 
 // route for get all albums
 api.get('/album', function(req, res) {
-
     album.find().then((data) => {
             res.json({ data });
         })
@@ -68,8 +67,7 @@ api.get('/album/:id', function(req, res) {
 
 // creation route for save image by album
 api.post('/album/image/', function(req, res) {
-    console.log("informacion req", req.body.image)
-        //initialize array temp
+    //initialize array temp
     var arrayTemp = [];
     //initialize date
     var date = new Date();
@@ -79,41 +77,55 @@ api.post('/album/image/', function(req, res) {
     img.name = req.body.name;
     img.image = req.body.image;
     img.creationDate = date;
-    //query
-    //search album
-    album.findById(req.body.idAlbum).then((data) => {
-        //add creationDate
-        img.creationDate = date;
-        //assing array images to array temp
-        arrayTemp = data.images;
-        //add new image
-        arrayTemp.push(img);
-        //query for search an update images
-        album.findByIdAndUpdate(req.body.idAlbum, { id: ObjectId(), images: arrayTemp }).then((data) => {
-                res.json({
-                    status: "success",
-                    message: 'New image added!'
-                });
-            })
-            .catch((err) => {
+    // get the sequence
+    imageCounter.findOneAndUpdate({ "id": "imageId" }, { $inc: { "seq": 1 } })
+        .then((dataSeq) => {
+            //assign the sequence
+            img._id = dataSeq.seq;
+            // query
+            // search album
+            album.findById(req.body.idAlbum).then((data) => {
+                //assing array images to array temp
+                arrayTemp = data.images;
+                //add new image in a array
+                arrayTemp.push(img);
+                // query for search an update images
+                album.findByIdAndUpdate(req.body.idAlbum, { images: arrayTemp }).then((data) => {
+                        res.json({
+                            status: "success",
+                            message: 'New image added!'
+                        });
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        res.json({
+                            status: "error",
+                            message: 'error to create album',
+                        });
+                    })
+            }).catch((err) => {
                 console.log(err);
                 res.json({
                     status: "error",
-                    message: 'error to create album',
+                    message: 'error to find album',
                 });
             })
-    }).catch((err) => {
-        console.log(err);
-        res.json({
-            status: "error",
-            message: 'error to find album',
-        });
-    })
+        })
+        .catch((err) => {
+            console.log(err);
+            res.json({
+                status: "error",
+                message: 'error to generate sequence',
+            });
+        })
 });
 
 // route for find the image with album ID
-api.get('/album/image/:id', function(req, res) {
-    album.find({ "images._id": ObjectId(req.params.id) }, { "images.$": 1 }).then((data) => {
+api.get('/albums/images/:id', function(req, res) {
+    //convert parameter of string to int
+    var id = parseInt(req.params.id);
+    album.find({ "images._id": id }, { "images.$": 1 }).then((data) => {
+            console.log("inspeccionar el parametro de entrada", data)
             res.json({ data });
         })
         .catch((err) => {

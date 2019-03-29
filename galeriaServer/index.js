@@ -18,5 +18,4 @@ mongoose.connect('mongodb://localhost:27017/ImageGallery')
         });
     })
 
-    .catch(err => console.log(err));
-
+.catch(err => console.log(err));
