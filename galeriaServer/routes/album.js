@@ -125,7 +125,6 @@ api.get('/albums/images/:id', function(req, res) {
     //convert parameter of string to int
     var id = parseInt(req.params.id);
     album.find({ "images._id": id }, { "images.$": 1 }).then((data) => {
-            console.log("inspeccionar el parametro de entrada", data)
             res.json({ data });
         })
         .catch((err) => {
@@ -163,16 +162,17 @@ api.get('/album/images/all', function(req, res) {
 // route for delete a image of album
 api.delete('/album/image/:idAlbum/:idImage', function(req, res) {
     var arrayTemp = [];
+    var idAlb = parseInt(req.params.idAlbum);
     //find the album
-    album.findById({ "_id": req.params.idAlbum }).then((data) => {
+    album.findById({ "_id": idAlb }).then((data) => {
         //convert string to ObjectId the parameter
-        var id1 = mongoose.Types.ObjectId(req.params.idImage);
+        var id1 = parseInt(req.params.idImage);
         //loop in the array the images
         data.images.forEach(image => {
             //convert String to ObjectId id images in DB
-            var id2 = mongoose.Types.ObjectId(image._id);
-            //compare id image in db with the parameter if not is equals
-            if (!id2.equals(id1)) {
+            var id2 = parseInt(image._id);
+            //compare id image in db with the parameter if are not equals
+            if (id2 !== id1) {
                 //add in new array temp
                 arrayTemp.push(image)
             }
